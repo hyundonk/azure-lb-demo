@@ -55,7 +55,7 @@ int_lb  = {
 }
 ```
 
-References: 
+Terraform Syntax References: 
 1. "for expression" reference: https://www.terraform.io/docs/configuration/expressions.html#for-expressions
 "The source value can also be an object or map value, in which case two temporary variable names can be provided to access the keys and values respectively"
 
