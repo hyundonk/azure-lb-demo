@@ -2,17 +2,6 @@
 locals {
   frontend_ipconfig_name   = "frontend-ipconfig"
 }
- 
-resource "azurerm_public_ip" "public_ip" {
-  for_each              = var.lb
-
-  name                  = "${each.value.name}-pip"
-  location              = var.location
-  resource_group_name   = var.resource_group_name
-
-	allocation_method     = "Static"
-  sku                   = "Standard"
-}
 
 resource "azurerm_lb" "lb" {
   for_each              = var.lb
@@ -23,42 +12,28 @@ resource "azurerm_lb" "lb" {
 
   sku = "Standard"
 
-  frontend_ip_configuration  {
+  frontend_ip_configuration {
     name                  = local.frontend_ipconfig_name
-    public_ip_address_id  = azurerm_public_ip.public_ip[each.key].id
+    subnet_id             = each.value.subnet_id
+    private_ip_address    = each.value.ip_address
+    private_ip_address_allocation = "Static"
   }
 }
 
 resource "azurerm_lb_probe" "http" {
   for_each              = var.lb
-  
+
   resource_group_name   = var.resource_group_name
 
   loadbalancer_id       = azurerm_lb.lb[each.key].id
   name                  = "${azurerm_lb.lb[each.key].name}-probe-http"
-  
-  protocol              = "Http"
-  port                  = 80
-  request_path          ="/"
+ 
+  protocol                  = "Http"
+  port                      = 80
+  request_path              ="/"
 
-  interval_in_seconds   = 5
-  number_of_probes      = 2
-}
-
-resource "azurerm_lb_probe" "https" {
-  for_each              = var.lb
-  
-  resource_group_name   = var.resource_group_name
-
-  loadbalancer_id       = azurerm_lb.lb[each.key].id
-  name                  = "${azurerm_lb.lb[each.key].name}-probe-https"
-  
-  protocol              = "Https"
-  port                  = 443
-  request_path          ="/"
-
-  interval_in_seconds   = 5
-  number_of_probes      = 2
+  interval_in_seconds       = 5
+  number_of_probes          = 2
 }
 
 resource "azurerm_lb_backend_address_pool" "lb" {
@@ -93,7 +68,6 @@ resource "azurerm_lb_rule" "https" {
   disable_outbound_snat           = true
 }
 
-
 resource "azurerm_lb_rule" "http" {
   for_each              = var.lb
 
@@ -113,7 +87,7 @@ resource "azurerm_lb_rule" "http" {
 
   enable_floating_ip              = true
   idle_timeout_in_minutes         = 4
-  load_distribution               = "Default"
+  load_distribution               = "Default" 
 
   disable_outbound_snat           = true
 }
