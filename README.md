@@ -54,3 +54,13 @@ int_lb  = {
   }
 }
 ```
+
+References: 
+1. "for expression" reference: https://www.terraform.io/docs/configuration/expressions.html#for-expressions
+"The source value can also be an object or map value, in which case two temporary variable names can be provided to access the keys and values respectively"
+
+2. "flatten" function: https://www.terraform.io/docs/configuration/functions/flatten.html
+
+
+
+
